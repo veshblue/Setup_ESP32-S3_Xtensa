@@ -19,8 +19,8 @@ Siapkan hal berikut dulu:
 
 - OS Windows (contoh command di README ini pakai PowerShell)
 - Koneksi internet (untuk install dependency)
-- Git
-- Rustup/Rust
+- [Git](https://git-scm.com/downloads)
+- [Rustup/Rust](https://rustup.rs/)
 - Board ESP32-S3
 - Kabel USB data (bukan kabel charge-only)
 
