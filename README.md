@@ -19,7 +19,7 @@ Siapkan hal berikut dulu:
 
 - OS Windows (contoh command di README ini pakai PowerShell)
 - Koneksi internet (untuk install dependency)
-- [Node.js] (https://nodejs.org/en/download)
+- [Node.js](https://nodejs.org/en/download)
 - [Git](https://git-scm.com/downloads)
 - [Rustup/Rust](https://rustup.rs/)
 - Board ESP32-S3
