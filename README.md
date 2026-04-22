@@ -1,104 +1,187 @@
-# ESP32-S3 Rust Project
+# ESP32-S3 Rust Deploy Template
 
-Template project Rust (`no_std`) untuk board ESP32-S3 menggunakan ekosistem `esp-rs` (`esp-hal`, `espflash`, dan `espup`).
+Template ini dibuat supaya publik bisa langsung develop dan deploy firmware Rust ke ESP32-S3 tanpa setup manual yang rumit di setiap project baru.
 
-## Fitur
+Target utamanya: setelah ikuti README ini dari awal sampai akhir, user bisa menjalankan `cargo build` dan `cargo run` dengan minim error.
 
-- Konfigurasi target default `xtensa-esp32s3-none-elf`
-- Runtime `no_std` + `no_main`
-- Logging serial lewat `esp-println`
-- Panic/backtrace lewat `esp-backtrace`
-- Runner otomatis untuk flash + monitor serial
+## Apa yang Sudah Disiapkan di Template Ini
 
-## Requirement
+- Target default `xtensa-esp32s3-none-elf`
+- Arsitektur firmware `no_std` + `no_main`
+- Panic dan backtrace via `esp-backtrace`
+- Serial output via `esp-println`
+- Runner otomatis flash + monitor via `espflash`
+- Konfigurasi build Xtensa (`build-std = ["core"]`) agar lebih stabil untuk `cargo check/build`
 
-- Windows PowerShell (atau shell lain yang kompatibel)
-- Rust toolchain
-- Board ESP32-S3 + kabel data USB
+## 1) Requirement
 
-## Cara Clone dari GitHub
+Siapkan hal berikut dulu:
 
-Jika kamu ingin share template ini ke teman, minta mereka clone:
+- OS Windows (contoh command di README ini pakai PowerShell)
+- Koneksi internet (untuk install dependency)
+- Git
+- Rustup/Rust
+- Board ESP32-S3
+- Kabel USB data (bukan kabel charge-only)
 
-```powershell
-git clone https://github.com/veshblue/Setup_ESP32-S3_Xtensa.git
-cd Setup_ESP32-S3_Xtensa
-```
+Opsional tapi disarankan:
 
-Setelah itu lanjut setup environment dan jalankan:
+- Driver USB sesuai board ESP32-S3 kamu
 
-```powershell
-cargo check
-cargo run
-```
+## 2) Install Toolchain ESP-Rust (Sekali Saja)
 
-## Setup Environment (sekali saja)
-
-Install ESP-Rust toolchain:
+Install `espup` lalu toolchain ESP:
 
 ```powershell
 irm https://esp-rs.github.io/espup/install.ps1 | iex
 espup install
 ```
 
-Setelah selesai, restart terminal. Jika perlu, load environment manual:
+Setelah selesai:
+
+1. Tutup terminal
+2. Buka terminal baru
+
+Jika environment belum aktif, jalankan manual:
 
 ```powershell
 . $HOME\export-esp.ps1
 ```
 
-Install tools:
+Lalu install tool deploy:
 
 ```powershell
 cargo install ldproxy espflash
 ```
 
-## Build dan Run
+## 3) Clone Repository Template
 
-Masuk ke folder project:
+Clone repo ini:
 
 ```powershell
-cd project
+git clone https://github.com/veshblue/Setup_ESP32-S3_Xtensa.git
+cd Setup_ESP32-S3_Xtensa
 ```
 
-Cek kompilasi:
+## 4) Verifikasi Environment
+
+Cek toolchain yang aktif:
+
+```powershell
+rustup show active-toolchain
+```
+
+Output yang diharapkan mengandung `esp`.
+
+Kalau belum `esp`, jalankan:
+
+```powershell
+. $HOME\export-esp.ps1
+rustup show active-toolchain
+```
+
+## 5) Build Firmware
+
+Jalankan:
 
 ```powershell
 cargo check
-```
-
-Build firmware:
-
-```powershell
 cargo build
 ```
 
-Flash ke board + buka serial monitor:
+Jika dua command ini sukses, artinya project siap deploy.
+
+## 6) Flash ke ESP32-S3
+
+Hubungkan board ke USB, lalu jalankan:
 
 ```powershell
 cargo run
 ```
 
-## Konfigurasi Penting
+Template ini sudah mengatur runner:
 
-`/.cargo/config.toml`:
-- target default: `xtensa-esp32s3-none-elf`
-- runner: `espflash flash --monitor`
-- `build-std = ["core"]` untuk target Xtensa
+```toml
+espflash flash --monitor
+```
 
-`/rust-toolchain.toml`:
-- channel: `esp`
-- component: `rust-src`
+Jadi `cargo run` akan:
 
-## Struktur Singkat
+1. Build firmware
+2. Flash ke board
+3. Buka serial monitor otomatis
 
-- `src/main.rs` - entrypoint firmware
-- `Cargo.toml` - dependency dan profile build
-- `.cargo/config.toml` - target/runner/rustflags
-- `rust-toolchain.toml` - pin toolchain ESP
-- `ESP32S3_SETUP.md` - panduan setup versi lebih detail
+## 7) Struktur File Penting
 
-## Catatan
+- `src/main.rs` - entry point firmware
+- `Cargo.toml` - dependencies dan build profile
+- `.cargo/config.toml` - target, rustflags, runner
+- `rust-toolchain.toml` - pin channel `esp`
+- `ESP32S3_SETUP.md` - catatan setup tambahan
 
-- Jika serial monitor tidak muncul, cek port USB dan driver board ESP32-S3.
-- Jika `cargo check` error terkait target `core`, pastikan environment dari `espup` sudah aktif (`export-esp.ps1` sudah dijalankan atau terminal sudah direstart).
+## 8) Troubleshooting (Paling Sering Terjadi)
+
+### Error: `can't find crate for core`
+
+Penyebab: environment/toolchain ESP belum aktif.
+
+Solusi:
+
+```powershell
+. $HOME\export-esp.ps1
+cargo check
+```
+
+### Error akses serial/port tidak ketemu
+
+Penyebab umum:
+
+- Driver USB board belum terinstall
+- Kabel USB bukan kabel data
+- Port sedang dipakai aplikasi lain
+
+Solusi cepat:
+
+- Ganti kabel USB
+- Tutup serial monitor lain
+- Cabut/pasang board lalu ulangi `cargo run`
+
+### `cargo run` tidak flash otomatis
+
+Pastikan file `.cargo/config.toml` masih berisi:
+
+- target `xtensa-esp32s3-none-elf`
+- runner `espflash flash --monitor`
+
+## 9) Cara Pakai Sebagai Template Project Baru
+
+Kalau kamu ingin bikin project turunan:
+
+1. Clone repo ini
+2. Rename folder sesuai nama project baru
+3. Ubah `name` di `Cargo.toml`
+4. Edit `src/main.rs` sesuai kebutuhan aplikasi
+
+Setelah itu alur pakai tetap sama:
+
+```powershell
+cargo check
+cargo build
+cargo run
+```
+
+## 10) Ringkasan Alur Cepat
+
+Kalau mau versi singkat:
+
+```powershell
+irm https://esp-rs.github.io/espup/install.ps1 | iex
+espup install
+# restart terminal
+cargo install ldproxy espflash
+git clone https://github.com/veshblue/Setup_ESP32-S3_Xtensa.git
+cd Setup_ESP32-S3_Xtensa
+cargo check
+cargo build
+cargo run
+```
