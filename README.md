@@ -16,6 +16,22 @@ Template project Rust (`no_std`) untuk board ESP32-S3 menggunakan ekosistem `esp
 - Rust toolchain
 - Board ESP32-S3 + kabel data USB
 
+## Cara Clone dari GitHub
+
+Jika kamu ingin share template ini ke teman, minta mereka clone:
+
+```powershell
+git clone https://github.com/veshblue/Setup_ESP32-S3_Xtensa.git
+cd Setup_ESP32-S3_Xtensa
+```
+
+Setelah itu lanjut setup environment dan jalankan:
+
+```powershell
+cargo check
+cargo run
+```
+
 ## Setup Environment (sekali saja)
 
 Install ESP-Rust toolchain:
